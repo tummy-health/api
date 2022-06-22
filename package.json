@@ -1,0 +1,24 @@
+{
+  "name": "@tummy-health/api",
+  "version": "1.0.0",
+  "description": "The tummy-health api project",
+  "main": "index.js",
+  "scripts": {
+    "start": "serverless offline --httpPort 8000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tummy-health/api.git"
+  },
+  "author": "Taylor Laekeman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tummy-health/api/issues"
+  },
+  "homepage": "https://github.com/tummy-health/api#readme",
+  "devDependencies": {
+    "serverless": "^3.19.0",
+    "serverless-offline": "^8.8.0"
+  }
+}
