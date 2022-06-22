@@ -3,14 +3,15 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-offline
+  - serverless-webpack
 
 provider:
   name: aws
   runtime: nodejs14.x
 
 functions:
-  hello:
-    handler: handler.hello
+  api:
+    handler: src/handler.default
     events:
       - httpApi:
           path: /

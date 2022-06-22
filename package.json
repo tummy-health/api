@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "serverless offline --httpPort 8000",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc -p . --noEmit"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,13 @@
   },
   "homepage": "https://github.com/tummy-health/api#readme",
   "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/preset-typescript": "^7.17.12",
+    "babel-loader": "^8.2.5",
     "serverless": "^3.19.0",
-    "serverless-offline": "^8.8.0"
+    "serverless-offline": "^8.8.0",
+    "serverless-webpack": "^5.7.1",
+    "typescript": "^4.7.4"
   }
 }
