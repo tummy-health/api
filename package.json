@@ -4,6 +4,7 @@
   "description": "The tummy-health api project",
   "main": "index.js",
   "scripts": {
+    "build": "serverless package --stage production",
     "check": "npm run lint && npm run typecheck && npm run test",
     "lint": "eslint src test && prettier --check src test",
     "lint-fix": "eslint src test --fix && prettier --write src test",
