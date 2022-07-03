@@ -17,16 +17,18 @@ class TestStorageClient implements IStorageClient {
   }
 
   addItem = async ({
+    environment,
     getId,
     getNow,
     item,
     table: { hashKeys, name, sortKeys },
   }) => {
-    this.tables[name] = { hashKeys, sortKeys };
-    if (!(name in this.items)) this.items[name] = {};
+    const tableName = `${environment}-${name}`;
+    this.tables[tableName] = { hashKeys, sortKeys };
+    if (!(tableName in this.items)) this.items[tableName] = {};
     const key = buildItemKey({ hashKeys, item, sortKeys });
     const itemToSave = { ...item, createdDate: getNow(), id: getId() };
-    this.items[name][key] = itemToSave;
+    this.items[tableName][key] = itemToSave;
     return itemToSave;
   };
 }

@@ -1,5 +1,6 @@
 interface StorageClient {
   addItem: (input: {
+    environment: string;
     getId: () => string;
     getNow: () => string;
     item: Item;

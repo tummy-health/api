@@ -8,6 +8,7 @@ export const resolvers = {
       { environment, getId, getNow, storageClient, userId }
     ) =>
       storageClient.addItem({
+        environment,
         getId,
         getNow,
         item: {
@@ -19,7 +20,7 @@ export const resolvers = {
         },
         table: {
           hashKeys: ['userId'],
-          name: `${environment}-entries`,
+          name: 'entries',
           sortKeys: ['date', 'revision'],
         },
       }),
