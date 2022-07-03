@@ -41,5 +41,10 @@
     "serverless-webpack": "^5.7.1",
     "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "apollo-server-lambda": "^3.9.0",
+    "graphql": "^16.5.0",
+    "luxon": "^2.4.0"
   }
 }
