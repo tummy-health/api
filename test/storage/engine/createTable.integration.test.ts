@@ -7,7 +7,7 @@ import {
   deleteTable,
   describeTable,
   listTables,
-} from '@test/storage/utils';
+} from '@test/storage/engine/utils';
 
 const ENVIRONMENT = 'integrationTest-createTable';
 

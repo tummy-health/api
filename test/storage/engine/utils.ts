@@ -1,27 +1,30 @@
 import {
-  AttributeValue,
   CreateTableCommand,
   DeleteTableCommand,
   DescribeTableCommand,
   DynamoDBClient,
-  GetItemCommand,
   ListTablesCommand,
-  PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+} from '@aws-sdk/lib-dynamodb';
 
 export const addItem = async ({
   item,
   tableName,
 }: {
-  item: Record<string, AttributeValue>;
+  item: Record<string, boolean | number | string>;
   tableName: string;
 }) => {
   const client = new DynamoDBClient({});
-  const putItemCommand = new PutItemCommand({
+  const documentClient = DynamoDBDocumentClient.from(client);
+  const command = new PutCommand({
     Item: item,
     TableName: tableName,
   });
-  await client.send(putItemCommand);
+  await documentClient.send(command);
 };
 
 export const createTable = async ({
@@ -86,15 +89,16 @@ export const getItem = async ({
   tableName: string;
 }) => {
   const client = new DynamoDBClient({});
+  const documentClient = DynamoDBDocumentClient.from(client);
   const key = {
-    [hashKeyName]: { S: hashKeyValue },
+    [hashKeyName]: hashKeyValue,
   };
-  if (sortKeyName && sortKeyValue) key[sortKeyName] = { S: sortKeyValue };
-  const command = new GetItemCommand({
+  if (sortKeyName && sortKeyValue) key[sortKeyName] = sortKeyValue;
+  const command = new GetCommand({
     Key: key,
     TableName: tableName,
   });
-  return client.send(command);
+  return documentClient.send(command);
 };
 
 export const listTables = async ({ prefix }) => {

@@ -2,8 +2,8 @@ import {
   CreateTableCommand,
   DescribeTableCommand,
   DynamoDBClient,
-  PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 
 import IStorageEngine, {
   AddItemInput,
@@ -14,26 +14,22 @@ import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 
 class StorageEngine implements IStorageEngine {
-  client: DynamoDBClient;
+  readonly client: DynamoDBClient;
+
+  readonly documentClient: DynamoDBDocumentClient;
 
   constructor() {
     this.client = new DynamoDBClient({});
+    this.documentClient = DynamoDBDocumentClient.from(this.client);
   }
 
   addItem = async ({ item, tableName }: AddItemInput) => {
-    const formattedItem = Object.entries(item).reduce(
-      (result, [propertyName, propertyValue]) => ({
-        ...result,
-        [propertyName]: { S: propertyValue.toString() },
-      }),
-      {}
-    );
-    const putItemCommand = new PutItemCommand({
-      Item: formattedItem,
+    const command = new PutCommand({
+      Item: item,
       TableName: tableName,
     });
     try {
-      await this.client.send(putItemCommand);
+      await this.client.send(command);
     } catch (error) {
       if (error.name === 'ResourceNotFoundException')
         throw new MissingTableError({ tableName });

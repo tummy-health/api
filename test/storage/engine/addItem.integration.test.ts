@@ -29,12 +29,15 @@ test('adds item', async () => {
     tableName,
   });
   const engine = new StorageEngine();
+  const item = {
+    booleanProperty: true,
+    numericProperty: 9.0,
+    stringProperty: 'test-value',
+    testHashKey: 'test-hash-key',
+    testSortKey: 'test-sort-key',
+  };
   const returnedItem = await engine.addItem({
-    item: {
-      otherProperty: 'test-value',
-      testHashKey: 'test-hash-key',
-      testSortKey: 'test-sort-key',
-    },
+    item,
     tableName,
   });
   const response = await getItem({
@@ -45,16 +48,8 @@ test('adds item', async () => {
     tableName,
   });
   const { Item: savedItem } = response;
-  expect(returnedItem).toMatchObject({
-    otherProperty: 'test-value',
-    testHashKey: 'test-hash-key',
-    testSortKey: 'test-sort-key',
-  });
-  expect(savedItem).toMatchObject({
-    otherProperty: { S: 'test-value' },
-    testHashKey: { S: 'test-hash-key' },
-    testSortKey: { S: 'test-sort-key' },
-  });
+  expect(returnedItem).toMatchObject(item);
+  expect(savedItem).toMatchObject(item);
 });
 
 test('adds item without sort key', async () => {
@@ -63,12 +58,13 @@ test('adds item without sort key', async () => {
     hashKey: 'testHashKey',
     tableName,
   });
+  const item = {
+    otherProperty: 'test-value',
+    testHashKey: 'test-hash-key',
+  };
   const engine = new StorageEngine();
   const returnedItem = await engine.addItem({
-    item: {
-      otherProperty: 'test-value',
-      testHashKey: 'test-hash-key',
-    },
+    item,
     tableName,
   });
   const response = await getItem({
@@ -77,14 +73,8 @@ test('adds item without sort key', async () => {
     tableName,
   });
   const { Item: savedItem } = response;
-  expect(returnedItem).toMatchObject({
-    otherProperty: 'test-value',
-    testHashKey: 'test-hash-key',
-  });
-  expect(savedItem).toMatchObject({
-    otherProperty: { S: 'test-value' },
-    testHashKey: { S: 'test-hash-key' },
-  });
+  expect(returnedItem).toMatchObject(item);
+  expect(savedItem).toMatchObject(item);
 });
 
 test('throws error if table does not exist', async () => {
@@ -145,8 +135,8 @@ test('overwrites item with matching key', async () => {
   });
   await addItem({
     item: {
-      testHashKey: { S: 'test-hash-key' },
-      otherProperty: { S: 'test-value' },
+      testHashKey: 'test-hash-key',
+      otherProperty: 'test-value',
     },
     tableName,
   });
@@ -164,7 +154,7 @@ test('overwrites item with matching key', async () => {
     tableName,
   });
   expect(item).toMatchObject({
-    testHashKey: { S: 'test-hash-key' },
-    otherProperty: { S: 'test-other-value' },
+    testHashKey: 'test-hash-key',
+    otherProperty: 'test-other-value',
   });
 });

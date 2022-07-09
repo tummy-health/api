@@ -2,7 +2,11 @@ import { v4 as uuid } from 'uuid';
 
 import StorageEngine from '@src/storage/engine';
 import MissingTableError from '@src/storage/missingTableError';
-import { createTable, deleteTable, listTables } from '@test/storage/utils';
+import {
+  createTable,
+  deleteTable,
+  listTables,
+} from '@test/storage/engine/utils';
 
 const ENVIRONMENT = 'integrationTest-describeTable';
 
