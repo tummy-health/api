@@ -3,10 +3,12 @@ import IStorageEngine, {
   CreateTableInput,
   DescribeTableInput,
   Item,
+  WaitForTableInput,
 } from '@src/storage/engineType';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 import ExistingTableError from '@src/storage/existingTableError';
+import wait from '@src/utils/wait';
 
 class TestStorageEngine implements IStorageEngine {
   readonly items: Items;
@@ -42,6 +44,19 @@ class TestStorageEngine implements IStorageEngine {
       sortKey,
       status,
     };
+  };
+
+  finishCreatingTable = async ({ tableName }) => {
+    this.tables[tableName].status = 'ACTIVE';
+  };
+
+  waitForTable = async ({ tableName }: WaitForTableInput) => {
+    let hasFinished = false;
+    do {
+      const { status } = this.tables[tableName];
+      hasFinished = status === 'ACTIVE';
+      await wait({ seconds: 0.1 }); // eslint-disable-line no-await-in-loop
+    } while (!hasFinished);
   };
 }
 

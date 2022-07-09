@@ -12,6 +12,7 @@ import IStorageEngine, {
 import ExistingTableError from '@src/storage/existingTableError';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
+import wait from '@src/utils/wait';
 
 class StorageEngine implements IStorageEngine {
   readonly client: DynamoDBClient;
@@ -90,6 +91,15 @@ class StorageEngine implements IStorageEngine {
         throw new MissingTableError({ tableName });
       throw error;
     }
+  };
+
+  waitForTable = async ({ tableName }) => {
+    let hasFinishedCreating = false;
+    do {
+      const { status } = await this.describeTable({ tableName }); // eslint-disable-line no-await-in-loop
+      hasFinishedCreating = status !== 'CREATING';
+      await wait({ second: 0.1 }); // eslint-disable-line no-await-in-loop
+    } while (!hasFinishedCreating);
   };
 }
 

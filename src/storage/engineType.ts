@@ -4,6 +4,8 @@ interface StorageEngine {
   createTable: (input: CreateTableInput) => Promise<void>;
 
   describeTable: (input: DescribeTableInput) => Promise<TableDescription>;
+
+  waitForTable: (input: WaitForTableInput) => Promise<void>;
 }
 
 export interface AddItemInput {
@@ -26,6 +28,10 @@ export interface TableDescription {
 }
 
 export interface DescribeTableInput {
+  tableName: string;
+}
+
+export interface WaitForTableInput {
   tableName: string;
 }
 
