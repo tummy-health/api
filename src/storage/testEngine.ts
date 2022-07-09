@@ -53,7 +53,7 @@ class TestStorageEngine implements IStorageEngine {
   waitForTable = async ({ tableName }: WaitForTableInput) => {
     let hasFinished = false;
     do {
-      const { status } = this.tables[tableName];
+      const { status } = await this.describeTable({ tableName }); // eslint-disable-line no-await-in-loop
       hasFinished = status === 'ACTIVE';
       await wait({ seconds: 0.1 }); // eslint-disable-line no-await-in-loop
     } while (!hasFinished);
