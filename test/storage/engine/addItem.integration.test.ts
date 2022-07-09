@@ -31,7 +31,7 @@ test('adds item', async () => {
   const engine = new StorageEngine();
   const item = {
     booleanProperty: true,
-    numericProperty: 9.0,
+    numericProperty: 9,
     stringProperty: 'test-value',
     testHashKey: 'test-hash-key',
     testSortKey: 'test-sort-key',
@@ -91,7 +91,7 @@ test('throws error if table does not exist', async () => {
   ).rejects.toThrow(MissingTableError);
 });
 
-test('throws error if table is missing hash key', async () => {
+test('throws error if item is missing hash key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
@@ -108,7 +108,7 @@ test('throws error if table is missing hash key', async () => {
   ).rejects.toThrow(MissingKeyError);
 });
 
-test('throws error if table is missing sort key', async () => {
+test('throws error if item is missing sort key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',

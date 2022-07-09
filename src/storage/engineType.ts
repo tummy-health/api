@@ -3,7 +3,7 @@ interface StorageEngine {
 
   createTable: (input: CreateTableInput) => Promise<void>;
 
-  describeTable: (input: { tableName: string }) => Promise<TableDescription>;
+  describeTable: (input: DescribeTableInput) => Promise<TableDescription>;
 }
 
 export interface AddItemInput {
@@ -23,6 +23,10 @@ export interface TableDescription {
   hashKey: string;
   sortKey?: string;
   status: string;
+}
+
+export interface DescribeTableInput {
+  tableName: string;
 }
 
 export default StorageEngine;
