@@ -21,7 +21,7 @@ test('adds item', async () => {
   });
   expect(returnedItem).toMatchObject(item);
   expect(
-    engine.items['test-table']['test-hash-key|test-sort-key']
+    engine.items['test-table']['test-hash-key+test-sort-key']
   ).toMatchObject(item);
 });
 

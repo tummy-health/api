@@ -1,4 +1,5 @@
 import StorageClient from '@src/storage/client';
+import MissingKeyError from '@src/storage/missingKeyError';
 import TestStorageEngine from '@src/storage/testEngine';
 import wait from '@src/utils/wait';
 
@@ -33,7 +34,7 @@ test('creates table and adds item', async () => {
   };
   expect(returnedItem).toMatchObject(expectedItem);
   expect(
-    engine.items['test-addItem-test-table']['test-hash-key|test-sort-key']
+    engine.items['test-addItem-test-table']['test-hash-key+test-sort-key']
   ).toMatchObject(expectedItem);
 });
 
@@ -201,7 +202,53 @@ test('creates table and adds item with composite sort key', async () => {
   expect(returnedItem).toMatchObject(expectedItem);
   expect(
     engine.items['test-addItem-test-table'][
-      'test-hash-key|first-sort-key-component|second-sort-key-component'
+      'test-hash-key+first-sort-key-component|second-sort-key-component'
     ]
   ).toMatchObject(expectedItem);
+});
+
+test('throws error if item is missing component of composite hash key', async () => {
+  const engine = new TestStorageEngine();
+  const client = new StorageClient({
+    engine,
+    environment: 'test-addItem',
+    getId: () => 'test-id',
+    getNow: () => '2020-01-01T00:00:00',
+  });
+  await expect(
+    client.addItem({
+      item: {
+        firstHashKeyComponent: 'first-hash-key-component',
+        testSortKey: 'test-sort-key',
+      },
+      table: {
+        hashKeys: ['firstHashKeyComponent', 'secondHashKeyComponent'],
+        sortKeys: ['testSortKey'],
+        name: 'test-table',
+      },
+    })
+  ).rejects.toThrow(MissingKeyError);
+});
+
+test('throws error if item is missing component of composite hash key', async () => {
+  const engine = new TestStorageEngine();
+  const client = new StorageClient({
+    engine,
+    environment: 'test-addItem',
+    getId: () => 'test-id',
+    getNow: () => '2020-01-01T00:00:00',
+  });
+  await expect(
+    client.addItem({
+      item: {
+        testHashKey: 'test-hash-key',
+        firstSortKeyComponent: 'first-sort-key-component',
+      },
+      table: {
+        hashKeys: ['testHashKey'],
+        sortKeys: ['firstSortKeyComponent', 'secondSortKeyComponent'],
+        name: 'test-table',
+      },
+    })
+  ).rejects.toThrow(MissingKeyError);
 });

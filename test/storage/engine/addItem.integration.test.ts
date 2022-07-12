@@ -1,14 +1,14 @@
 import { v4 as uuid } from 'uuid';
 
+import env from '@src/env';
 import StorageEngine from '@src/storage/engine';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 import {
   addItem,
   createTable,
-  deleteTable,
+  deleteAllTables,
   getItem,
-  listTables,
 } from '@test/storage/engine/utils';
 
 const ENVIRONMENT = 'integrationTest-addItem';
@@ -16,19 +16,29 @@ const ENVIRONMENT = 'integrationTest-addItem';
 jest.setTimeout(10000);
 
 afterAll(async () => {
-  const { TableNames: tableNames } = await listTables({ prefix: ENVIRONMENT });
-  const promises = tableNames.map((tableName) => deleteTable({ tableName }));
-  await Promise.all(promises);
+  await deleteAllTables({
+    prefix: ENVIRONMENT,
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
+  });
 });
 
 test('adds item', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
+    region: env.storageRegion,
     sortKey: 'testSortKey',
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   const item = {
     booleanProperty: true,
     numericProperty: 9,
@@ -43,8 +53,11 @@ test('adds item', async () => {
   const response = await getItem({
     hashKeyName: 'testHashKey',
     hashKeyValue: 'test-hash-key',
+    region: env.storageRegion,
     sortKeyName: 'testSortKey',
     sortKeyValue: 'test-sort-key',
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
   const { Item: savedItem } = response;
@@ -56,13 +69,20 @@ test('adds item without sort key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
   const item = {
     otherProperty: 'test-value',
     testHashKey: 'test-hash-key',
   };
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   const returnedItem = await engine.addItem({
     item,
     tableName,
@@ -70,6 +90,9 @@ test('adds item without sort key', async () => {
   const response = await getItem({
     hashKeyName: 'testHashKey',
     hashKeyValue: 'test-hash-key',
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
   const { Item: savedItem } = response;
@@ -79,7 +102,11 @@ test('adds item without sort key', async () => {
 
 test('throws error if table does not exist', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   await expect(
     engine.addItem({
       item: {
@@ -95,9 +122,16 @@ test('throws error if item is missing hash key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   await expect(
     engine.addItem({
       item: {
@@ -112,10 +146,17 @@ test('throws error if item is missing sort key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
+    region: env.storageRegion,
     sortKey: 'testSortKey',
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   await expect(
     engine.addItem({
       item: {
@@ -131,6 +172,9 @@ test('overwrites item with matching key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
     hashKey: 'testHashKey',
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
   await addItem({
@@ -138,9 +182,16 @@ test('overwrites item with matching key', async () => {
       testHashKey: 'test-hash-key',
       otherProperty: 'test-value',
     },
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine();
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
   await engine.addItem({
     item: {
       testHashKey: 'test-hash-key',
@@ -151,6 +202,9 @@ test('overwrites item with matching key', async () => {
   const { Item: item } = await getItem({
     hashKeyName: 'testHashKey',
     hashKeyValue: 'test-hash-key',
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
     tableName,
   });
   expect(item).toMatchObject({

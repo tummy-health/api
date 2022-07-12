@@ -4,7 +4,7 @@ export const resolvers = {
   Mutation: {
     saveEntry: async (
       _source,
-      { input: { date, notes, ratingOutOfFive, revision } },
+      { input: { date, notes, ratingOutOfFive } },
       { environment, getId, getNow, storageClient, userId }
     ) =>
       storageClient.addItem({
@@ -15,13 +15,12 @@ export const resolvers = {
           date,
           notes,
           ratingOutOfFive,
-          revision,
           userId,
         },
         table: {
           hashKeys: ['userId'],
           name: 'entries',
-          sortKeys: ['date', 'revision'],
+          sortKeys: ['date'],
         },
       }),
   },
@@ -32,7 +31,6 @@ export const schema = gql`
     date: String!
     notes: String
     ratingOutOfFive: Int!
-    revision: Int!
   }
 
   type Entry {
@@ -41,7 +39,6 @@ export const schema = gql`
     id: ID!
     notes: String
     ratingOutOfFive: Int!
-    revision: Int!
     userId: String!
   }
 

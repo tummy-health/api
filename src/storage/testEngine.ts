@@ -60,9 +60,9 @@ class TestStorageEngine implements IStorageEngine {
   };
 }
 
-type Items = Record<string, Record<string, Item>>;
+export type Items = Record<string, Record<string, Item>>;
 
-type Tables = Record<
+export type Tables = Record<
   string,
   { hashKey: string; sortKey?: string; status?: string }
 >;
@@ -71,7 +71,7 @@ const getKey = ({ hashKey, item, sortKey }) => {
   if (!(hashKey in item)) throw new MissingKeyError();
   if (!sortKey) return item[hashKey];
   if (!(sortKey in item)) throw new MissingKeyError();
-  return `${item[hashKey]}|${item[sortKey]}`;
+  return `${item[hashKey]}+${item[sortKey]}`;
 };
 
 export default TestStorageEngine;

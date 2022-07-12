@@ -19,8 +19,22 @@ class StorageEngine implements IStorageEngine {
 
   readonly documentClient: DynamoDBDocumentClient;
 
-  constructor() {
-    this.client = new DynamoDBClient({});
+  constructor({
+    id,
+    region = 'us-east-2',
+    secret,
+  }: {
+    id: string;
+    region?: string;
+    secret: string;
+  }) {
+    this.client = new DynamoDBClient({
+      credentials: {
+        accessKeyId: id,
+        secretAccessKey: secret,
+      },
+      region,
+    });
     this.documentClient = DynamoDBDocumentClient.from(this.client);
   }
 

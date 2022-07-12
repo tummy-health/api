@@ -1,37 +1,29 @@
 import { ApolloServer, gql } from 'apollo-server-lambda';
 import { DocumentNode } from 'graphql';
-import { DateTime } from 'luxon';
 
 import {
   resolvers as saveEntryResolvers,
   schema as saveEntrySchema,
-} from '@src/api/saveEntry';
-import TestStorageClient from '@src/storage/testStorageClient';
-import StorageClient from '@src/storage/types';
+} from '@src/endpoints/saveEntry';
+import type IStorageClient from '@src/storage/clientType';
 
 class Api {
   readonly server: ApolloServer;
 
-  readonly storageClient: StorageClient;
+  readonly storageClient: IStorageClient;
 
   constructor({
-    environment,
-    getId,
     getNow,
     storageClient,
     parseUserId,
   }: {
-    environment: string;
-    getId: () => string;
     getNow: () => string;
-    storageClient: StorageClient;
+    storageClient: IStorageClient;
     parseUserId: () => string;
   }) {
     this.storageClient = storageClient;
     this.server = new ApolloServer({
       context: () => ({
-        environment,
-        getId,
         getNow,
         storageClient,
         userId: parseUserId(),
@@ -62,29 +54,5 @@ const schema = [
     }
   `,
 ];
-
-export class TestApi extends Api {
-  constructor({
-    environment = 'development',
-    id = 'test-id',
-    now = '2020-01-01T00:00:00',
-    storageClient = new TestStorageClient(),
-    userId = 'test-user-id',
-  }: {
-    environment?: string;
-    id?: string;
-    now?: string;
-    storageClient?: TestStorageClient;
-    userId?: string;
-  }) {
-    super({
-      environment,
-      getId: () => id,
-      getNow: () => DateTime.fromISO(now, { zone: 'UTC' }).toISO(),
-      storageClient,
-      parseUserId: () => userId,
-    });
-  }
-}
 
 export default Api;

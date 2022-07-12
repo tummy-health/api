@@ -1,5 +1,6 @@
 import IStorageClient, { AddItemInput } from '@src/storage/clientType';
 import IStorageEngine, { Item } from '@src/storage/engineType';
+import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 
 class StorageClient implements IStorageClient {
@@ -74,35 +75,48 @@ const formatItem = ({
   item: Item;
   sortKeys?: string[];
 }): Item => {
-  const hashKeyValues = hashKeys.map((key) => item[key]);
-  const formattedHashKey = createCompositeValue({
-    values: hashKeys,
-  }) as string;
-  const formattedHashKeyValue = createCompositeValue({ values: hashKeyValues });
+  const { key: hashKey, value: hashKeyValue } = formatKey({
+    item,
+    keys: hashKeys,
+  });
   const result = {
     ...item,
     createdDate: getNow(),
-    [formattedHashKey]: formattedHashKeyValue,
+    [hashKey]: hashKeyValue,
     id: getId(),
   };
   if (sortKeys) {
-    const sortKeyValues = sortKeys?.map((key) => item[key]);
-    const formattedSortKey = createCompositeValue({
-      values: sortKeys,
-    }) as string;
-    const formattedSortKeyValue = createCompositeValue({
-      values: sortKeyValues,
+    const { key: sortKey, value: sortKeyValue } = formatKey({
+      item,
+      keys: sortKeys,
     });
-    result[formattedSortKey] = formattedSortKeyValue;
+    result[sortKey] = sortKeyValue;
   }
   return result;
+};
+
+const formatKey = ({
+  item,
+  keys,
+}: {
+  item: Item;
+  keys: string[];
+}): { key: string; value: boolean | number | string } => {
+  const values = keys.map((key) => {
+    if (!(key in item)) throw new MissingKeyError();
+    return item[key];
+  });
+  return {
+    key: createCompositeValue({ values: keys }) as string,
+    value: createCompositeValue({ values }),
+  };
 };
 
 const createCompositeValue = ({
   values,
 }: {
   values?: (boolean | number | string)[];
-}) => {
+}): boolean | number | string | undefined => {
   if (!values) return undefined;
   if (values.length === 1) return values[0];
   return values.join('|');
