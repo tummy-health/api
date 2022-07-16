@@ -5,6 +5,7 @@ import {
   resolvers as saveEntryResolvers,
   schema as saveEntrySchema,
 } from '@src/endpoints/saveEntry';
+import type Logger from '@src/logging/loggerType';
 import type IStorageClient from '@src/storage/clientType';
 
 class Api {
@@ -13,21 +14,22 @@ class Api {
   readonly storageClient: IStorageClient;
 
   constructor({
-    getNow,
+    logger,
     storageClient,
     parseUserId,
   }: {
-    getNow: () => string;
+    logger: Logger;
     storageClient: IStorageClient;
     parseUserId: () => string;
   }) {
     this.storageClient = storageClient;
     this.server = new ApolloServer({
       context: () => ({
-        getNow,
+        logger,
         storageClient,
         userId: parseUserId(),
       }),
+      plugins: [getLoggingMiddleware({ logger })],
       resolvers,
       typeDefs: schema,
     });
@@ -43,6 +45,19 @@ class Api {
     return this.server.executeOperation({ query, variables });
   }
 }
+
+const getLoggingMiddleware = ({ logger }: { logger: Logger }) => ({
+  requestDidStart: async ({ request: { query = '' } }) => {
+    logger.info(query);
+    return {
+      didEncounterErrors: async ({ errors }) => {
+        errors.forEach((error) => {
+          logger.error(error);
+        });
+      },
+    };
+  },
+});
 
 const resolvers = [saveEntryResolvers];
 
