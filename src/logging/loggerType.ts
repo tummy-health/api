@@ -4,7 +4,7 @@ interface Logger {
   info: LogFunction;
 }
 
-export type LogFunction = (input: any) => void;
+export type LogFunction = (input: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export enum Level {
   Debug = 0,

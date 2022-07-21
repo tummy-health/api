@@ -3,7 +3,7 @@ import ILogger, { Level } from '@src/logging/loggerType';
 class TestLogger implements ILogger {
   readonly level: Level;
 
-  readonly logs: any[] = [];
+  readonly logs: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor({ level = Level.Info }: { level?: Level } = {}) {
     this.level = level;

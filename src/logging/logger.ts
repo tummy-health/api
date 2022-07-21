@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import ILogger, { Level, LogFunction } from '@src/logging/loggerType';
 
 class Logger implements ILogger {
