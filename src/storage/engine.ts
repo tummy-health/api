@@ -86,11 +86,7 @@ class StorageEngine implements IStorageEngine {
         throw new ExistingTableError({ tableName });
       throw error;
     }
-    let hasFinishedCreating = false;
-    do {
-      const { status } = await this.describeTable({ tableName }); // eslint-disable-line no-await-in-loop
-      hasFinishedCreating = status !== 'CREATING';
-    } while (!hasFinishedCreating);
+    await this.waitForTable({ tableName });
   };
 
   describeTable = async ({ tableName }) => {
