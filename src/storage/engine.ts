@@ -5,6 +5,8 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 
+import Logger from '@src/logging/logger';
+import ILogger from '@src/logging/loggerType';
 import IStorageEngine, {
   AddItemInput,
   CreateTableInput,
@@ -19,12 +21,16 @@ class StorageEngine implements IStorageEngine {
 
   readonly documentClient: DynamoDBDocumentClient;
 
+  readonly logger: ILogger;
+
   constructor({
     id,
+    logger = new Logger(),
     region = 'us-east-2',
     secret,
   }: {
     id: string;
+    logger?: ILogger;
     region?: string;
     secret: string;
   }) {
@@ -36,6 +42,7 @@ class StorageEngine implements IStorageEngine {
       region,
     });
     this.documentClient = DynamoDBDocumentClient.from(this.client);
+    this.logger = logger;
   }
 
   addItem = async ({ item, tableName }: AddItemInput) => {

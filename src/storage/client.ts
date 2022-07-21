@@ -1,10 +1,14 @@
+import { DateTime } from 'luxon';
+import { v4 as getUuid } from 'uuid';
+
+import Logger from '@src/logging/loggerType';
 import IStorageClient, { AddItemInput } from '@src/storage/clientType';
-import IStorageEngine, { Item } from '@src/storage/engineType';
+import StorageEngine, { Item } from '@src/storage/engineType';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 
 class StorageClient implements IStorageClient {
-  readonly engine: IStorageEngine;
+  readonly engine: StorageEngine;
 
   readonly environment: string;
 
@@ -12,21 +16,26 @@ class StorageClient implements IStorageClient {
 
   readonly getNow: () => string;
 
+  readonly logger: Logger;
+
   constructor({
     engine,
     environment,
-    getId,
-    getNow,
+    getId = getUuid,
+    getNow = () => DateTime.now().toUTC().toISO(),
+    logger,
   }: {
-    engine: IStorageEngine;
+    engine: StorageEngine;
     environment: string;
-    getId: () => string;
-    getNow: () => string;
+    getId?: () => string;
+    getNow?: () => string;
+    logger?: Logger;
   }) {
     this.engine = engine;
     this.environment = environment;
     this.getId = getId;
     this.getNow = getNow;
+    this.logger = logger;
   }
 
   addItem = async ({
@@ -45,6 +54,7 @@ class StorageClient implements IStorageClient {
     });
     try {
       await this.engine.addItem({ item, tableName });
+      this.logger.info(`added item to table '${tableName}'`);
       return item;
     } catch (error) {
       if (error instanceof MissingTableError) {
@@ -53,8 +63,10 @@ class StorageClient implements IStorageClient {
           tableName,
           sortKey,
         });
+        this.logger.info(`created table '${tableName}'`);
         await this.engine.waitForTable({ tableName });
         await this.engine.addItem({ item, tableName });
+        this.logger.info(`added item to table '${tableName}'`);
         return item;
       }
       throw error;
