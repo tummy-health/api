@@ -1,3 +1,4 @@
+import TestLogger from '@src/logging/testLogger';
 import StorageClient from '@src/storage/client';
 import MissingKeyError from '@src/storage/missingKeyError';
 import TestStorageEngine from '@src/storage/testEngine';
@@ -10,6 +11,7 @@ test('creates table and adds item', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   const returnedItem = await client.addItem({
     item: {
@@ -47,6 +49,7 @@ test('does not add item until table has been created', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   let hasAdded = false;
   const promise = client.addItem({
@@ -75,6 +78,7 @@ test('creates table and adds item without sort key', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   const returnedItem = await client.addItem({
     item: {
@@ -108,6 +112,7 @@ test('adds item to existing table', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   const returnedItem = await client.addItem({
     item: {
@@ -136,6 +141,7 @@ test('creates table and adds item with composite hash key', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   const returnedItem = await client.addItem({
     item: {
@@ -173,6 +179,7 @@ test('creates table and adds item with composite sort key', async () => {
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   const returnedItem = await client.addItem({
     item: {
@@ -214,6 +221,7 @@ test('throws error if item is missing component of composite hash key', async ()
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   await expect(
     client.addItem({
@@ -237,6 +245,7 @@ test('throws error if item is missing component of composite hash key', async ()
     environment: 'test-addItem',
     getId: () => 'test-id',
     getNow: () => '2020-01-01T00:00:00',
+    logger: new TestLogger(),
   });
   await expect(
     client.addItem({
