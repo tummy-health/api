@@ -1,6 +1,6 @@
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 
-import KeyEngine, { IKeyEngine } from '@src/auth/keyEngine';
+import { IKeyEngine } from '@src/auth/keyEngine';
 
 export interface IAuthClient {
   authorize: (input: {
