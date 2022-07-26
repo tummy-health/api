@@ -38,7 +38,7 @@ interface Key {
 export class TestKeyEngine implements IKeyEngine {
   readonly keys: Record<string, string>;
 
-  constructor({ keys }: { keys: Record<string, string> }) {
+  constructor({ keys = {} }: { keys?: Record<string, string> } = {}) {
     this.keys = keys;
   }
 
