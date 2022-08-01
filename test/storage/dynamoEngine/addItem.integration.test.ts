@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 
 import env from '@src/env';
-import StorageEngine from '@src/storage/engine';
+import DynamoEngine from '@src/storage/dynamoEngine';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 import {
@@ -9,7 +9,7 @@ import {
   createTable,
   deleteAllTables,
   getItem,
-} from '@test/storage/engine/utils';
+} from '@test/storage/dynamoEngine/utils';
 
 const ENVIRONMENT = 'integrationTest-addItem';
 
@@ -34,7 +34,7 @@ test('adds item', async () => {
     storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -78,7 +78,7 @@ test('adds item without sort key', async () => {
     otherProperty: 'test-value',
     testHashKey: 'test-hash-key',
   };
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -102,7 +102,7 @@ test('adds item without sort key', async () => {
 
 test('throws error if table does not exist', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -127,7 +127,7 @@ test('throws error if item is missing hash key', async () => {
     storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -152,7 +152,7 @@ test('throws error if item is missing sort key', async () => {
     storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -187,7 +187,7 @@ test('overwrites item with matching key', async () => {
     storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,

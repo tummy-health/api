@@ -1,13 +1,13 @@
 import { v4 as uuid } from 'uuid';
 
 import env from '@src/env';
-import StorageEngine from '@src/storage/engine';
+import DynamoEngine from '@src/storage/dynamoEngine';
 import ExistingTableError from '@src/storage/existingTableError';
 import {
   createTable,
   deleteAllTables,
   describeTable,
-} from '@test/storage/engine/utils';
+} from '@test/storage/dynamoEngine/utils';
 
 const ENVIRONMENT = 'integrationTest-createTable';
 
@@ -24,7 +24,7 @@ afterAll(async () => {
 
 test('creates table', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -57,7 +57,7 @@ test('creates table', async () => {
 
 test('creates table without sort key', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -85,7 +85,7 @@ test('creates table without sort key', async () => {
 
 test('waits for table', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
@@ -115,7 +115,7 @@ test('throws error if table exists', async () => {
     storageSecret: env.storageSecret,
     tableName,
   });
-  const engine = new StorageEngine({
+  const engine = new DynamoEngine({
     id: env.storageId,
     region: env.storageRegion,
     secret: env.storageSecret,
