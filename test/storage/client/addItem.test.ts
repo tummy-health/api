@@ -2,7 +2,6 @@ import TestLogger from '@src/logging/testLogger';
 import StorageClient from '@src/storage/client';
 import MissingKeyError from '@src/storage/missingKeyError';
 import TestStorageEngine from '@src/storage/testEngine';
-import wait from '@src/utils/wait';
 
 test('creates table and adds item', async () => {
   const engine = new TestStorageEngine();
@@ -38,37 +37,6 @@ test('creates table and adds item', async () => {
   expect(
     engine.items['test-addItem-test-table']['test-hash-key+test-sort-key']
   ).toMatchObject(expectedItem);
-});
-
-test('does not add item until table has been created', async () => {
-  const engine = new TestStorageEngine({
-    tables: { 'test-table': { hashKey: 'testHashKey', status: 'CREATING' } },
-  });
-  const client = new StorageClient({
-    engine,
-    environment: 'test-addItem',
-    getId: () => 'test-id',
-    getNow: () => '2020-01-01T00:00:00',
-    logger: new TestLogger(),
-  });
-  let hasAdded = false;
-  const promise = client.addItem({
-    item: {
-      testHashKey: 'test-hash-key',
-    },
-    table: {
-      hashKeys: ['testHashKey'],
-      name: 'test-table',
-    },
-  });
-  promise.then(() => {
-    hasAdded = true;
-  });
-  await wait({ seconds: 0.01 });
-  expect(hasAdded).toBe(false);
-  engine.finishCreatingTable({ tableName: 'test-table' });
-  await promise;
-  expect(hasAdded).toBe(true);
 });
 
 test('creates table and adds item without sort key', async () => {

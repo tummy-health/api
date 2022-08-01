@@ -89,7 +89,11 @@ class StorageEngine implements IStorageEngine {
     await this.waitForTable({ tableName });
   };
 
-  describeTable = async ({ tableName }) => {
+  private describeTable = async ({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<{ hashKey: string; sortKey?: string; status: string }> => {
     const command = new DescribeTableCommand({
       TableName: tableName,
     });
@@ -110,7 +114,7 @@ class StorageEngine implements IStorageEngine {
     }
   };
 
-  waitForTable = async ({ tableName }) => {
+  private waitForTable = async ({ tableName }: { tableName: string }) => {
     let hasFinishedCreating = false;
     do {
       const { status } = await this.describeTable({ tableName }); // eslint-disable-line no-await-in-loop

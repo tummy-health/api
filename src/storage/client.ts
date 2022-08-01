@@ -64,7 +64,6 @@ class StorageClient implements IStorageClient {
           sortKey,
         });
         this.logger.info(`created table '${tableName}'`);
-        await this.engine.waitForTable({ tableName });
         await this.engine.addItem({ item, tableName });
         this.logger.info(`added item to table '${tableName}'`);
         return item;

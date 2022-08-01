@@ -1,14 +1,11 @@
 import IStorageEngine, {
   AddItemInput,
   CreateTableInput,
-  DescribeTableInput,
   Item,
-  WaitForTableInput,
 } from '@src/storage/engineType';
 import MissingKeyError from '@src/storage/missingKeyError';
 import MissingTableError from '@src/storage/missingTableError';
 import ExistingTableError from '@src/storage/existingTableError';
-import wait from '@src/utils/wait';
 
 class TestStorageEngine implements IStorageEngine {
   readonly items: Items;
@@ -36,36 +33,11 @@ class TestStorageEngine implements IStorageEngine {
     if (tableName in this.tables) throw new ExistingTableError({ tableName });
     this.tables[tableName] = { hashKey, sortKey };
   };
-
-  describeTable = async ({ tableName }: DescribeTableInput) => {
-    const { hashKey, sortKey, status = 'ACTIVE' } = this.tables[tableName];
-    return {
-      hashKey,
-      sortKey,
-      status,
-    };
-  };
-
-  finishCreatingTable = async ({ tableName }) => {
-    this.tables[tableName].status = 'ACTIVE';
-  };
-
-  waitForTable = async ({ tableName }: WaitForTableInput) => {
-    let hasFinished = false;
-    do {
-      const { status } = await this.describeTable({ tableName }); // eslint-disable-line no-await-in-loop
-      hasFinished = status === 'ACTIVE';
-      await wait({ seconds: 0.1 }); // eslint-disable-line no-await-in-loop
-    } while (!hasFinished);
-  };
 }
 
 export type Items = Record<string, Record<string, Item>>;
 
-export type Tables = Record<
-  string,
-  { hashKey: string; sortKey?: string; status?: string }
->;
+export type Tables = Record<string, { hashKey: string; sortKey?: string }>;
 
 const getKey = ({ hashKey, item, sortKey }) => {
   if (!(hashKey in item)) throw new MissingKeyError();

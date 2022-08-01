@@ -83,6 +83,28 @@ test('creates table without sort key', async () => {
   });
 });
 
+test('waits for table', async () => {
+  const tableName = `${ENVIRONMENT}-${uuid()}`;
+  const engine = new StorageEngine({
+    id: env.storageId,
+    region: env.storageRegion,
+    secret: env.storageSecret,
+  });
+  await engine.createTable({
+    hashKey: 'testHashKey',
+    tableName,
+  });
+  const {
+    Table: { TableStatus: status },
+  } = await describeTable({
+    region: env.storageRegion,
+    storageId: env.storageId,
+    storageSecret: env.storageSecret,
+    tableName,
+  });
+  expect(status).toBe('ACTIVE');
+});
+
 test('throws error if table exists', async () => {
   const tableName = `${ENVIRONMENT}-${uuid()}`;
   await createTable({
