@@ -1,4 +1,5 @@
 service: api
+useDotenv: true
 frameworkVersion: '3'
 
 plugins:
@@ -11,8 +12,11 @@ provider:
 
 functions:
   api:
-    handler: src/handler.default
     events:
-      - httpApi:
-          path: /
-          method: get
+      - http:
+          authorizer: auth
+          path: graphql
+          method: post
+    handler: src/handlers/api.default
+  auth:
+    handler: src/handlers/auth.default
