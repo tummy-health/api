@@ -35,6 +35,10 @@ class Api {
     });
   }
 
+  createHandler() {
+    return this.server.createHandler();
+  }
+
   execute({
     query,
     variables,

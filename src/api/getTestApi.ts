@@ -1,18 +1,20 @@
 import Api from '@src/api/api';
+import type Logger from '@src/logging/loggerType';
+import TestLogger from '@src/logging/testLogger';
 import type IStorageClient from '@src/storage/clientType';
 import getTestClient from '@src/storage/getTestClient';
 
 const getTestApi = ({
-  now = '2020-01-01T00:00:00',
+  logger = new TestLogger(),
   storageClient = getTestClient().client,
   userId = 'test-user-id',
 }: {
-  now?: string;
+  logger?: Logger;
   storageClient?: IStorageClient;
   userId?: string;
 } = {}) =>
   new Api({
-    getNow: () => now,
+    logger,
     storageClient,
     parseUserId: () => userId,
   });
