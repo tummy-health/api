@@ -1,4 +1,3 @@
-import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
 
 import Client, {
@@ -7,30 +6,8 @@ import Client, {
   VerificationFailedError,
 } from '@src/auth/client';
 import { TestKeyEngine } from '@src/auth/keyEngine';
-
-const getToken = ({
-  algorithm = 'RS256',
-  audience = 'test-audience',
-  encryptionKey = 'test-encryption-key',
-  issuer = 'test-issuer',
-  keyId = 'test-key-id',
-  scope = 'test-scope',
-  userId = 'test-user-id',
-}: {
-  algorithm?: Algorithm;
-  audience?: string;
-  encryptionKey?: string;
-  issuer?: string;
-  keyId?: string;
-  scope?: string;
-  userId?: string;
-} = {}) =>
-  jwt.sign({ scope, sub: userId }, encryptionKey, {
-    algorithm,
-    audience,
-    issuer,
-    keyid: keyId,
-  });
+import TestLogger from '@src/logging/testLogger';
+import { getToken } from '@test/auth/utils';
 
 test('authorizes', async () => {
   const encryptionKey = await fs.promises.readFile(
@@ -59,6 +36,35 @@ test('authorizes', async () => {
   expect(userId).toBe('test-user-id');
 });
 
+test('removes Bearer if present', async () => {
+  const encryptionKey = await fs.promises.readFile(
+    './test/auth/rsa.pem',
+    'utf8'
+  );
+  const keyEngine = new TestKeyEngine({
+    keys: { 'test-key-id': encryptionKey },
+  });
+  const client = new Client({
+    audience: 'test-audience',
+    issuer: 'test-issuer',
+    keyEngine,
+  });
+  const token = getToken({
+    algorithm: 'RS256',
+    audience: 'test-audience',
+    encryptionKey,
+    issuer: 'test-issuer',
+    keyId: 'test-key-id',
+    scope: 'test-scope',
+    userId: 'test-user-id',
+  });
+  const { scope, userId } = await client.authorize({
+    token: `Bearer ${token}`,
+  });
+  expect(scope).toBe('test-scope');
+  expect(userId).toBe('test-user-id');
+});
+
 test('throws IncorrectAlgorithmError if token was not signed with RS256', async () => {
   const keyEngine = new TestKeyEngine({
     keys: { 'test-key-id': 'test-encryption-key' },
@@ -67,6 +73,7 @@ test('throws IncorrectAlgorithmError if token was not signed with RS256', async 
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     algorithm: 'HS256',
@@ -84,6 +91,7 @@ test('throws InvalidTokenError if token could not be decoded', async () => {
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   await expect(() =>
     client.authorize({ token: 'blah blah blah' })
@@ -106,6 +114,7 @@ test('throws VerificationFailedError if token was invalid', async () => {
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     encryptionKey: otherEncryptionKey,
@@ -130,6 +139,7 @@ test('throws InvalidTokenError if token does not have scope', async () => {
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     encryptionKey,
@@ -155,6 +165,7 @@ test('throws InvalidTokenError if token does not have userId', async () => {
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     encryptionKey,
@@ -180,6 +191,7 @@ test('throws VerificationFailedError if token has incorrect audience', async () 
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     audience: 'other-audience',
@@ -205,6 +217,7 @@ test('throws VerificationFailedError if token has incorrect issuer', async () =>
     audience: 'test-audience',
     issuer: 'test-issuer',
     keyEngine,
+    logger: new TestLogger(),
   });
   const token = getToken({
     encryptionKey,

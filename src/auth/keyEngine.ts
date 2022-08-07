@@ -1,23 +1,35 @@
 import buildJwks from 'jwks-rsa';
 
+import Logger from '@src/logging/logger';
+import ILogger from '@src/logging/loggerType';
+
 export interface IKeyEngine {
   getSigningKey: (input: { id: string }) => Promise<{ key: string }>;
 }
 
 class KeyEngine implements IKeyEngine {
-  readonly jwks: IJwks;
+  private readonly jwks: IJwks;
+
+  private readonly logger: ILogger;
 
   constructor({
-    jwks = buildJwks({
-      cache: true,
-      jwksRequestsPerMinute: 10,
-      jwksUri: 'test',
-      rateLimit: true,
-    }),
+    jwks,
+    jwksUri,
+    logger = new Logger(),
   }: {
-    jwks: IJwks;
+    jwks?: IJwks;
+    jwksUri?: string;
+    logger?: ILogger;
   }) {
-    this.jwks = jwks;
+    if (!jwks)
+      this.jwks = buildJwks({
+        cache: true,
+        jwksRequestsPerMinute: 10,
+        jwksUri,
+        rateLimit: true,
+      });
+    else this.jwks = jwks;
+    this.logger = logger;
   }
 
   getSigningKey = async ({ id }) => {

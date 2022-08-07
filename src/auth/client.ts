@@ -1,6 +1,8 @@
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 
 import { IKeyEngine } from '@src/auth/keyEngine';
+import Logger from '@src/logging/logger';
+import ILogger from '@src/logging/loggerType';
 
 export interface IAuthClient {
   authorize: (input: {
@@ -9,35 +11,41 @@ export interface IAuthClient {
 }
 
 class AuthClient implements IAuthClient {
-  readonly audience: string;
+  private readonly audience: string;
 
-  readonly issuer: string;
+  private readonly issuer: string;
 
-  readonly keyEngine: IKeyEngine;
+  private readonly keyEngine: IKeyEngine;
+
+  private readonly logger: ILogger;
 
   constructor({
     audience,
     issuer,
     keyEngine,
+    logger = new Logger(),
   }: {
     audience: string;
     issuer: string;
     keyEngine: IKeyEngine;
+    logger?: ILogger;
   }) {
     this.audience = audience;
     this.issuer = issuer;
     this.keyEngine = keyEngine;
+    this.logger = logger;
   }
 
   authorize = async ({ token }) => {
     try {
-      const decodedToken = jwt.decode(token, { complete: true });
+      const { token: parsedToken } = parseToken({ token });
+      const decodedToken = jwt.decode(parsedToken, { complete: true });
       if (!decodedToken) throw new InvalidTokenError();
       const {
         header: { kid: keyId },
       } = decodedToken;
       const { key } = await this.keyEngine.getSigningKey({ id: keyId });
-      const { scope, sub: userId } = jwt.verify(token, key, {
+      const { scope, sub: userId } = jwt.verify(parsedToken, key, {
         algorithms: ['RS256'],
         audience: this.audience,
         issuer: this.issuer,
@@ -48,6 +56,7 @@ class AuthClient implements IAuthClient {
       if (!scope || !userId) throw new InvalidTokenError();
       return { scope, userId };
     } catch (error) {
+      this.logger.error(error);
       if (error instanceof JsonWebTokenError) {
         if (error.message === 'invalid algorithm')
           throw new IncorrectAlgorithmError();
@@ -63,24 +72,9 @@ class AuthClient implements IAuthClient {
   };
 }
 
-export class TestAuthClient implements IAuthClient {
-  readonly tokens: Tokens;
-
-  constructor({ tokens = {} }: { tokens?: Tokens } = {}) {
-    this.tokens = tokens;
-  }
-
-  authorize = async ({ token }) => {
-    const response = this.tokens[token];
-    if (response instanceof AuthorizationError) throw response;
-    return response;
-  };
-}
-
-type Tokens = Record<
-  string,
-  { scope: string; userId: string } | AuthorizationError
->;
+const parseToken = ({ token }: { token: string }): { token: string } => ({
+  token: token.replace('Bearer ', ''),
+});
 
 export class AuthorizationError extends Error {
   constructor({
