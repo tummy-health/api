@@ -5,12 +5,9 @@ export const resolvers = {
     saveEntry: async (
       _source,
       { input: { date, notes, ratingOutOfFive } },
-      { environment, getId, getNow, storageClient, userId }
+      { storageClient, userId }
     ) =>
       storageClient.addItem({
-        environment,
-        getId,
-        getNow,
         item: {
           date,
           notes,
