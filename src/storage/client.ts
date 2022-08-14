@@ -71,6 +71,9 @@ class StorageClient implements IStorageClient {
       throw error;
     }
   };
+
+  getItems = async ({ hashKeyName, hashKeyValue, tableName }) =>
+    this.engine.getItems({ hashKeyName, hashKeyValue, tableName });
 }
 
 const formatItem = ({
