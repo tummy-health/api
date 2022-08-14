@@ -1,6 +1,10 @@
-import { ApolloServer, gql } from 'apollo-server-lambda';
+import { ApolloServer } from 'apollo-server-lambda';
 import { DocumentNode } from 'graphql';
 
+import {
+  resolvers as entriesResolvers,
+  schema as entriesSchema,
+} from '@src/endpoints/entries';
 import {
   resolvers as saveEntryResolvers,
   schema as saveEntrySchema,
@@ -63,15 +67,8 @@ const getLoggingMiddleware = ({ logger }: { logger: Logger }) => ({
   },
 });
 
-const resolvers = [saveEntryResolvers];
+const resolvers = [entriesResolvers, saveEntryResolvers];
 
-const schema = [
-  saveEntrySchema,
-  gql`
-    type Query {
-      placeholder: String!
-    }
-  `,
-];
+const schema = [entriesSchema, saveEntrySchema];
 
 export default Api;
