@@ -6,7 +6,7 @@ import TestStorageEngine from '@src/storage/testEngine';
 test('gets items', async () => {
   const engine = new TestStorageEngine({
     items: {
-      'test-table': {
+      'test-getItems-test-table': {
         'test-hash-key+test-sort-key-1': {
           testHashKey: 'test-hash-key',
           testSortKey: 'test-sort-key-1',
@@ -20,7 +20,10 @@ test('gets items', async () => {
       },
     },
     tables: {
-      'test-table': { hashKey: 'testHashKey', sortKey: 'testSortKey' },
+      'test-getItems-test-table': {
+        hashKey: 'testHashKey',
+        sortKey: 'testSortKey',
+      },
     },
   });
   const client = new StorageClient({
@@ -52,7 +55,7 @@ test('gets items', async () => {
 test('gets item without sort key', async () => {
   const engine = new TestStorageEngine({
     items: {
-      'test-table': {
+      'test-getItems-test-table': {
         'test-hash-key': {
           testHashKey: 'test-hash-key',
           testProperty: 'test-value',
@@ -60,7 +63,7 @@ test('gets item without sort key', async () => {
       },
     },
     tables: {
-      'test-table': { hashKey: 'testHashKey' },
+      'test-getItems-test-table': { hashKey: 'testHashKey' },
     },
   });
   const client = new StorageClient({
@@ -87,7 +90,7 @@ test('returns empty list when no items exist', async () => {
   const engine = new TestStorageEngine({
     items: {},
     tables: {
-      'test-table': { hashKey: 'testHashKey' },
+      'test-getItems-test-table': { hashKey: 'testHashKey' },
     },
   });
   const client = new StorageClient({
