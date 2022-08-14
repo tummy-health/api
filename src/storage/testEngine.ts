@@ -1,6 +1,7 @@
 import IStorageEngine, {
   AddItemInput,
   CreateTableInput,
+  GetItemsInput,
   Item,
 } from '@src/storage/engineType';
 import MissingKeyError from '@src/storage/missingKeyError';
@@ -32,6 +33,19 @@ class TestStorageEngine implements IStorageEngine {
   createTable = async ({ hashKey, sortKey, tableName }: CreateTableInput) => {
     if (tableName in this.tables) throw new ExistingTableError({ tableName });
     this.tables[tableName] = { hashKey, sortKey };
+  };
+
+  getItems = async ({
+    hashKeyValue,
+    tableName,
+  }: GetItemsInput): Promise<Item[]> => {
+    if (!(tableName in this.tables)) throw new MissingTableError({ tableName });
+    const items = this.items[tableName];
+    if (!items) return [];
+    const matchingItems = Object.entries(items)
+      .filter(([key]) => key.split('+')[0] === hashKeyValue)
+      .map((entry) => entry[1]);
+    return matchingItems;
   };
 }
 
