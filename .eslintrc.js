@@ -19,6 +19,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'max-classes-per-file': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '_' }],
     '@typescript-eslint/no-use-before-define': 'off',
   },
 };

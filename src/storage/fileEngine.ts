@@ -5,6 +5,8 @@ import ILogger from '@src/logging/loggerType';
 import IStorageEngine, {
   AddItemInput,
   CreateTableInput,
+  GetItemsInput,
+  Item,
 } from '@src/storage/engineType';
 import ExistingTableError from '@src/storage/existingTableError';
 import MissingKeyError from '@src/storage/missingKeyError';
@@ -82,6 +84,18 @@ class FileStorageEngine implements IStorageEngine {
       await fs.mkdir(this.dbRoot);
       this.logger.info(`created db root at '${this.dbRoot}'`);
     }
+  };
+
+  getItems = async ({ hashKeyValue, tableName }: GetItemsInput) => {
+    await verifyLocationExists({ location: this.dbRoot });
+    const tables = await getTables({ dbRoot: this.dbRoot });
+    if (!(tableName in tables)) throw new MissingTableError({ tableName });
+    const items = await getItems({ dbRoot: this.dbRoot, tableName });
+    if (!items) return [];
+    const matchingItems = Object.entries(items)
+      .filter(([key]) => key.split('+')[0] === hashKeyValue)
+      .map((entry) => entry[1]);
+    return matchingItems as Item[];
   };
 
   private hasDbRoot = async () => {

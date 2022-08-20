@@ -3,13 +3,19 @@ import {
   DescribeTableCommand,
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  QueryCommand,
+} from '@aws-sdk/lib-dynamodb';
 
 import Logger from '@src/logging/logger';
 import ILogger from '@src/logging/loggerType';
 import IStorageEngine, {
   AddItemInput,
   CreateTableInput,
+  GetItemsInput,
+  Item,
 } from '@src/storage/engineType';
 import ExistingTableError from '@src/storage/existingTableError';
 import MissingKeyError from '@src/storage/missingKeyError';
@@ -107,6 +113,30 @@ class StorageEngine implements IStorageEngine {
       const { AttributeName: sortKey } =
         keys.find(({ KeyType }) => KeyType === 'RANGE') || {};
       return { hashKey, sortKey, status };
+    } catch (error) {
+      if (error.name === 'ResourceNotFoundException')
+        throw new MissingTableError({ tableName });
+      throw error;
+    }
+  };
+
+  getItems = async ({
+    hashKeyName,
+    hashKeyValue,
+    tableName,
+  }: GetItemsInput): Promise<Item[]> => {
+    const expression = `${hashKeyName} = :hashKeyValue`;
+    const command = new QueryCommand({
+      ExpressionAttributeValues: {
+        ':hashKeyValue': hashKeyValue,
+      },
+      KeyConditionExpression: expression,
+      TableName: tableName,
+    });
+    try {
+      const response = await this.documentClient.send(command);
+      const { Items: items } = response;
+      return items;
     } catch (error) {
       if (error.name === 'ResourceNotFoundException')
         throw new MissingTableError({ tableName });
